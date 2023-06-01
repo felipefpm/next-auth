@@ -1,9 +1,10 @@
 import axios, { AxiosError } from 'axios'
 import { parseCookies, setCookie } from 'nookies'
+import { signOut } from '../context/AuthContext'
 
 let cookies = parseCookies()
 let isRefreshing = false
-let failedRequestQueue = []
+let failedRequestQueue: any = []
 
 export const api = axios.create({
   baseURL: 'http://localhost:3333',
@@ -40,10 +41,10 @@ api.interceptors.response.use(response => {
 
           api.defaults.headers['Authorization'] = `Bearer ${token}`
 
-          failedRequestQueue.forEach(request => request.onSuccess(token))
+          failedRequestQueue.forEach((request: any) => request.onSuccess(token))
           failedRequestQueue = []
         }).catch((err) => {
-          failedRequestQueue.forEach(request => request.onFailure(err))
+          failedRequestQueue.forEach((request: any) => request.onFailure(err))
           failedRequestQueue = []
         }).finally(() => {
           isRefreshing = false
@@ -64,7 +65,9 @@ api.interceptors.response.use(response => {
       })
 
     } else {
-      
+      signOut()
     }
   }
+
+  return Promise.reject(error)
 })
